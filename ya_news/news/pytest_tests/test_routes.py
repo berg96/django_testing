@@ -9,11 +9,11 @@ from pytest_django.asserts import assertRedirects
 @pytest.mark.parametrize(
     'name, args',
     (
-            ('news:home', None),
-            ('news:detail', pytest.lazy_fixture('id_for_news')),
-            ('users:login', None),
-            ('users:logout', None),
-            ('users:signup', None),
+        ('news:home', None),
+        ('news:detail', pytest.lazy_fixture('id_for_news')),
+        ('users:login', None),
+        ('users:logout', None),
+        ('users:signup', None),
     )
 )
 def test_pages_availability(client, name, args):

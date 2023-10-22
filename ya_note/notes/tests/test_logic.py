@@ -2,10 +2,9 @@ from http import HTTPStatus
 
 from django.test import Client, TestCase
 from django.urls import reverse
-from pytils.translit import slugify
-
 from notes.forms import WARNING
 from notes.models import Note, User
+from pytils.translit import slugify
 
 
 class TestNoteCreation(TestCase):
