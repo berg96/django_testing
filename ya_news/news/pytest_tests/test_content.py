@@ -1,43 +1,57 @@
 import pytest
 from django.conf import settings
-from django.urls import reverse
+
+from news.forms import CommentForm
+
+
+HOME_URL = pytest.lazy_fixture('home_url')
+DETAIL_URL = pytest.lazy_fixture('detail_url')
 
 
 @pytest.mark.django_db
-def test_news_count(client, news_list):
-    assert len(client.get(
-        reverse('news:home')
-    ).context['object_list']) == settings.NEWS_COUNT_ON_HOME_PAGE
+@pytest.mark.parametrize('url', (HOME_URL, ))
+def test_news_count(client, news_list, url):
+    assert len(
+        client.get(url).context['object_list']
+    ) == settings.NEWS_COUNT_ON_HOME_PAGE
 
 
 @pytest.mark.django_db
-def test_news_order(client, news_list):
+@pytest.mark.parametrize('url', (HOME_URL, ))
+def test_news_order(client, news_list, url):
     all_dates = [
         news.date for news in
-        client.get(reverse('news:home')).context['object_list']
+        client.get(url).context['object_list']
     ]
     assert all_dates == sorted(all_dates, reverse=True)
 
 
 @pytest.mark.django_db
-def test_comments_order(comments_list, detail_url, client):
-    response = client.get(detail_url)
+@pytest.mark.parametrize('url', (DETAIL_URL, ))
+def test_comments_order(comments_list, client, url):
+    response = client.get(url)
     assert 'news' in response.context
-    all_comments = response.context['news'].comment_set.all()
-    assert all_comments[0].created < all_comments[1].created
+    all_comments_datetime = [
+        comment.created for comment in
+        response.context['news'].comment_set.all()
+    ]
+    assert all_comments_datetime == sorted(all_comments_datetime)
 
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    'parametrized_client, form_is_available',
+    'url, parametrized_client, form_is_available',
     (
-        (pytest.lazy_fixture('admin_client'), True),
-        (pytest.lazy_fixture('client'), False),
+        (DETAIL_URL, pytest.lazy_fixture('admin_client'), True),
+        (DETAIL_URL, pytest.lazy_fixture('client'), False),
     )
 )
 def test_availability_form_for_different_users(
-    parametrized_client, form_is_available, detail_url
+    parametrized_client, form_is_available, url
 ):
+    context = parametrized_client.get(url).context
     assert (
-        'form' in parametrized_client.get(detail_url).context
-    ) is form_is_available
+        'form' in context
+    ) == form_is_available
+    if form_is_available:
+        assert isinstance(context['form'], CommentForm)
