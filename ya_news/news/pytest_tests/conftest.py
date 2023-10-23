@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 import pytest
 from django.conf import settings
+from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
@@ -10,16 +11,10 @@ from news.models import Comment, News
 
 @pytest.fixture
 def news():
-    news = News.objects.create(
+    return News.objects.create(
         title='Title',
         text='Text',
     )
-    return news
-
-
-@pytest.fixture
-def id_for_news(news):
-    return news.pk,
 
 
 @pytest.fixture
@@ -28,24 +23,19 @@ def author(django_user_model):
 
 
 @pytest.fixture
-def author_client(author, client):
-    client.force_login(author)
-    return client
+def author_client(author):
+    author_client = Client()
+    author_client.force_login(author)
+    return author_client
 
 
 @pytest.fixture
 def comment(author, news):
-    comment = Comment.objects.create(
+    return Comment.objects.create(
         news=news,
         author=author,
         text='Text',
     )
-    return comment
-
-
-@pytest.fixture
-def id_for_comment(comment):
-    return comment.pk,
 
 
 @pytest.fixture
@@ -64,7 +54,7 @@ def news_list():
 @pytest.fixture
 def comments_list(news, author):
     now = timezone.now()
-    for index in range(2):
+    for index in range(10):
         comment = Comment.objects.create(
             news=news, author=author, text=f'Tекст {index}',
         )
@@ -73,20 +63,40 @@ def comments_list(news, author):
 
 
 @pytest.fixture
-def form_data():
+def form_data_for_comment():
     return {'text': 'Pro100Text'}
 
 
 @pytest.fixture
-def detail_url(id_for_news):
-    return reverse('news:detail', args=id_for_news)
+def detail_url(news):
+    return reverse('news:detail', args=(news.pk,))
 
 
 @pytest.fixture
-def delete_url(id_for_comment):
-    return reverse('news:delete', args=id_for_comment)
+def delete_url(comment):
+    return reverse('news:delete', args=(comment.pk,))
 
 
 @pytest.fixture
-def edit_url(id_for_comment):
-    return reverse('news:edit', args=id_for_comment)
+def edit_url(comment):
+    return reverse('news:edit', args=(comment.pk,))
+
+
+@pytest.fixture
+def home_url():
+    return reverse('news:home')
+
+
+@pytest.fixture
+def login_url():
+    return reverse('users:login')
+
+
+@pytest.fixture
+def logout_url():
+    return reverse('users:logout')
+
+
+@pytest.fixture
+def signup_url():
+    return reverse('users:signup')
