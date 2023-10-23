@@ -33,8 +33,11 @@ def test_pages_availability(url, parametrized_client, expected_status):
 
 
 @pytest.mark.parametrize(
-    'url',
-    (EDIT_URL, DELETE_URL)
+    'url, log_url',
+    (
+        (EDIT_URL, LOGIN_URL),
+        (DELETE_URL, LOGIN_URL),
+    )
 )
-def test_redirect_for_anonymous_client(client, url, login_url):
-    assertRedirects(client.get(url), f'{login_url}?next={url}')
+def test_redirect_for_anonymous_client(client, url, log_url):
+    assertRedirects(client.get(url), f'{log_url}?next={url}')
