@@ -6,6 +6,7 @@ from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
+from news.forms import BAD_WORDS
 from news.models import Comment, News
 
 
@@ -100,3 +101,8 @@ def logout_url():
 @pytest.fixture
 def signup_url():
     return reverse('users:signup')
+
+
+@pytest.fixture
+def form_data_for_comment_with_bad_word():
+    return {'text': f'Text, {BAD_WORDS[0]}, etc'}
