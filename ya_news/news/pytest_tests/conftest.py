@@ -64,7 +64,7 @@ def comments_list(news, author):
 
 
 @pytest.fixture
-def form_data_for_comment():
+def comment_form_data():
     return {'text': 'Pro100Text'}
 
 
@@ -104,5 +104,5 @@ def signup_url():
 
 
 @pytest.fixture
-def form_data_for_comment_with_bad_word():
+def comment_form_data_with_bad_word():
     return {'text': f'Text, {BAD_WORDS[0]}, etc'}
