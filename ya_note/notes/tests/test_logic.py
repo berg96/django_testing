@@ -7,7 +7,6 @@ from pytils.translit import slugify
 from notes.forms import WARNING
 from notes.models import Note, User
 
-
 NOTE_SLUG_FOR_TEST = 'test_slug'
 ADD_URL = reverse('notes:add')
 SUCCESS_URL = reverse('notes:success')

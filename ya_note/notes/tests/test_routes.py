@@ -5,7 +5,6 @@ from django.urls import reverse
 
 from notes.models import Note, User
 
-
 NOTE_SLUG_FOR_TEST = 'test_slug'
 HOME_URL = reverse('notes:home')
 LIST_URL = reverse('notes:list')

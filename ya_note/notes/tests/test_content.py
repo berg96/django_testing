@@ -4,7 +4,6 @@ from django.urls import reverse
 from notes.forms import NoteForm
 from notes.models import Note, User
 
-
 NOTE_SLUG_FOR_TEST = 'test_slug'
 LIST_URL = reverse('notes:list')
 ADD_URL = reverse('notes:add')
