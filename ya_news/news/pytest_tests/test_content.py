@@ -3,7 +3,6 @@ from django.conf import settings
 
 from news.forms import CommentForm
 
-
 HOME_URL = pytest.lazy_fixture('home_url')
 DETAIL_URL = pytest.lazy_fixture('detail_url')
 

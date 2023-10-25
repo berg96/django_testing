@@ -3,7 +3,6 @@ from http import HTTPStatus
 import pytest
 from pytest_django.asserts import assertRedirects
 
-
 HOME_URL = pytest.lazy_fixture('home_url')
 DETAIL_URL = pytest.lazy_fixture('detail_url')
 EDIT_URL = pytest.lazy_fixture('edit_url')

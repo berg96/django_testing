@@ -1,12 +1,10 @@
 from http import HTTPStatus
 
 import pytest
-from django.urls import reverse
 from pytest_django.asserts import assertFormError, assertRedirects
 
 from news.forms import WARNING
 from news.models import Comment
-
 
 DETAIL_URL = pytest.lazy_fixture('detail_url')
 LOGIN_URL = pytest.lazy_fixture('login_url')
