@@ -3,32 +3,26 @@ from django.conf import settings
 
 from news.forms import CommentForm
 
-HOME_URL = pytest.lazy_fixture('home_url')
-DETAIL_URL = pytest.lazy_fixture('detail_url')
-
 
 @pytest.mark.django_db
-@pytest.mark.parametrize('url', (HOME_URL, ))
-def test_news_count(client, news_list, url):
+def test_news_count(client, news_list, home_url):
     assert len(
-        client.get(url).context['object_list']
+        client.get(home_url).context['object_list']
     ) == settings.NEWS_COUNT_ON_HOME_PAGE
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize('url', (HOME_URL, ))
-def test_news_order(client, news_list, url):
+def test_news_order(client, news_list, home_url):
     all_dates = [
         news.date for news in
-        client.get(url).context['object_list']
+        client.get(home_url).context['object_list']
     ]
     assert all_dates == sorted(all_dates, reverse=True)
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize('url', (DETAIL_URL, ))
-def test_comments_order(comments_list, client, url):
-    response = client.get(url)
+def test_comments_order(comments_list, client, detail_url):
+    response = client.get(detail_url)
     assert 'news' in response.context
     all_comments_datetime = [
         comment.created for comment in
@@ -39,16 +33,16 @@ def test_comments_order(comments_list, client, url):
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    'url, parametrized_client, form_is_available',
+    'parametrized_client, form_is_available',
     (
-        (DETAIL_URL, pytest.lazy_fixture('admin_client'), True),
-        (DETAIL_URL, pytest.lazy_fixture('client'), False),
+        (pytest.lazy_fixture('admin_client'), True),
+        (pytest.lazy_fixture('client'), False),
     )
 )
 def test_availability_form_for_different_users(
-    parametrized_client, form_is_available, url
+    parametrized_client, form_is_available, detail_url
 ):
-    context = parametrized_client.get(url).context
+    context = parametrized_client.get(detail_url).context
     assert (
         'form' in context
     ) == form_is_available
