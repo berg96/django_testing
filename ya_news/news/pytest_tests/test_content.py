@@ -33,16 +33,16 @@ def test_comments_order(comments_list, client, detail_url):
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    'parametrized_client, form_is_available',
+    'custom_client, form_is_available',
     (
         (pytest.lazy_fixture('admin_client'), True),
         (pytest.lazy_fixture('client'), False),
     )
 )
 def test_availability_form_for_different_users(
-    parametrized_client, form_is_available, detail_url
+    custom_client, form_is_available, detail_url
 ):
-    context = parametrized_client.get(detail_url).context
+    context = custom_client.get(detail_url).context
     assert (
         'form' in context
     ) == form_is_available

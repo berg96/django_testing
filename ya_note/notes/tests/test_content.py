@@ -50,12 +50,13 @@ class TestContent(TestCase):
         for client, availability in clients_availability:
             with self.subTest(client=client):
                 self.assertEqual(
-                    (self.note in client.get(LIST_URL).context['object_list']),
+                    self.note in client.get(LIST_URL).context['object_list'],
                     availability
                 )
 
     def test_pages_contains_form(self):
         for url in (ADD_URL, EDIT_URL):
-            context = self.author.get(url).context
-            self.assertIn('form', context)
-            self.assertIsInstance(context['form'], NoteForm)
+            with self.subTest(url=url):
+                context = self.author.get(url).context
+                self.assertIn('form', context)
+                self.assertIsInstance(context['form'], NoteForm)

@@ -16,6 +16,8 @@ DELETE_URL = reverse('notes:delete', args=(NOTE_SLUG_FOR_TEST,))
 LOGIN_URL = reverse('users:login')
 LOGOUT_URL = reverse('users:logout')
 SIGNUP_URL = reverse('users:signup')
+OK = HTTPStatus.OK
+NOT_FOUND = HTTPStatus.NOT_FOUND
 
 
 class TestRoutes(TestCase):
@@ -37,23 +39,21 @@ class TestRoutes(TestCase):
 
     def test_pages_availability(self):
         URL_CLIENT_EXPECTED_STATUS = [
-            [HOME_URL, self.guest, HTTPStatus.OK],
-            [LOGIN_URL, self.guest, HTTPStatus.OK],
-            [LOGOUT_URL, self.guest, HTTPStatus.OK],
-            [SIGNUP_URL, self.guest, HTTPStatus.OK],
-            [LIST_URL, self.author, HTTPStatus.OK],
-            [ADD_URL, self.author, HTTPStatus.OK],
-            [SUCCESS_URL, self.author, HTTPStatus.OK],
-            [DETAIL_URL, self.author, HTTPStatus.OK],
-            [EDIT_URL, self.author, HTTPStatus.OK],
-            [DELETE_URL, self.author, HTTPStatus.OK],
-            [DETAIL_URL, self.another, HTTPStatus.NOT_FOUND],
-            [EDIT_URL, self.another, HTTPStatus.NOT_FOUND],
-            [DELETE_URL, self.another, HTTPStatus.NOT_FOUND],
+            [HOME_URL, self.guest, OK],
+            [LOGIN_URL, self.guest, OK],
+            [LOGOUT_URL, self.guest, OK],
+            [SIGNUP_URL, self.guest, OK],
+            [LIST_URL, self.author, OK],
+            [ADD_URL, self.author, OK],
+            [SUCCESS_URL, self.author, OK],
+            [DETAIL_URL, self.author, OK],
+            [EDIT_URL, self.author, OK],
+            [DELETE_URL, self.author, OK],
+            [DETAIL_URL, self.another, NOT_FOUND],
+            [EDIT_URL, self.another, NOT_FOUND],
+            [DELETE_URL, self.another, NOT_FOUND],
         ]
-        for (
-            url, client, expected_status
-        ) in URL_CLIENT_EXPECTED_STATUS:
+        for url, client, expected_status in URL_CLIENT_EXPECTED_STATUS:
             with self.subTest(url=url, client=client, status=expected_status):
                 self.assertEqual(
                     client.get(url).status_code,
