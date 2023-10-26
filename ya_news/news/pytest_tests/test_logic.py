@@ -53,10 +53,13 @@ def test_user_cant_use_bad_words(
     assert set(Comment.objects.all()) == comments_before
 
 
-def test_author_can_delete_comment(delete_url, author_client, detail_url):
-    count_comments_before_del = Comment.objects.count()
+def test_author_can_delete_comment(
+    delete_url, author_client, detail_url, comment
+):
+    comments_before_del = set(Comment.objects.all())
     assertRedirects(author_client.delete(delete_url), detail_url + '#comments')
-    assert (count_comments_before_del - 1) == Comment.objects.count()
+    assert (len(comments_before_del) - 1) == Comment.objects.count()
+    assert comment == (comments_before_del - set(Comment.objects.all())).pop()
 
 
 def test_user_cant_delete_comment_of_another_user(
@@ -75,15 +78,14 @@ def test_user_cant_delete_comment_of_another_user(
 def test_author_can_edit_comment(
     edit_url, author_client, comment_form_data, detail_url, comment
 ):
-    comment_before_edit = comment
     assertRedirects(
         author_client.post(edit_url, data=comment_form_data),
         detail_url + '#comments'
     )
-    comment.refresh_from_db()
-    assert comment.text == comment_form_data['text']
-    assert comment.author == comment_before_edit.author
-    assert comment.news == comment_before_edit.news
+    comment_after_edit = Comment.objects.get(pk=comment.pk)
+    assert comment_after_edit.text == comment_form_data['text']
+    assert comment_after_edit.author == comment.author
+    assert comment_after_edit.news == comment.news
 
 
 def test_user_cant_edit_comment_of_another_user(

@@ -106,3 +106,13 @@ def signup_url():
 @pytest.fixture
 def comment_form_data_with_bad_word():
     return {'text': f'Text, {BAD_WORDS[0]}, etc'}
+
+
+@pytest.fixture
+def login_edit_url(login_url, edit_url):
+    return f'{login_url}?next={edit_url}'
+
+
+@pytest.fixture
+def login_delete_url(login_url, delete_url):
+    return f'{login_url}?next={delete_url}'

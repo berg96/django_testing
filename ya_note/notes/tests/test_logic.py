@@ -47,7 +47,7 @@ class TestNoteCreation(TestCase):
         )
         created_notes = set(Note.objects.all()) - notes_before
         self.assertEqual(len(created_notes), 1)
-        note = Note.objects.get(pk=created_notes.pop().pk)
+        note = created_notes.pop()
         self.assertEqual(note.title, self.form_data['title'])
         self.assertEqual(note.text, self.form_data['text'])
         self.assertEqual(note.slug, self.form_data['slug'])
@@ -111,7 +111,7 @@ class TestNoteEditDeleteUseNotUniqueSlug(TestCase):
         self.assertRedirects(response, SUCCESS_URL)
         created_notes = (set(Note.objects.all()) - notes_before)
         self.assertEqual(len(created_notes), 1)
-        note = Note.objects.get(pk=created_notes.pop().pk)
+        note = created_notes.pop()
         self.assertEqual(
             note.slug, slugify(self.form_data_without_slug['title'])
         )
@@ -125,7 +125,7 @@ class TestNoteEditDeleteUseNotUniqueSlug(TestCase):
             self.author_client.delete(DELETE_URL),
             SUCCESS_URL
         )
-        self.assertNotIn(self.note, Note.objects.all())
+        self.assertFalse(Note.objects.filter(pk=self.note.pk).exists())
         self.assertEqual(count_notes_before - 1, Note.objects.count())
 
     def test_user_cant_delete_comment_of_another_user(self):
@@ -142,11 +142,8 @@ class TestNoteEditDeleteUseNotUniqueSlug(TestCase):
             SUCCESS_URL
         )
         note_after_edit = Note.objects.get(pk=self.note.pk)
-        self.assertNotEqual(self.note.title, note_after_edit.title)
         self.assertEqual(note_after_edit.title, self.form_data['title'])
-        self.assertNotEqual(self.note.text, note_after_edit.text)
         self.assertEqual(note_after_edit.text, self.form_data['text'])
-        self.assertNotEqual(self.note.slug, note_after_edit.slug)
         self.assertEqual(note_after_edit.slug, self.form_data['slug'])
         self.assertEqual(self.note.author, note_after_edit.author)
 
