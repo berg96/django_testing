@@ -13,17 +13,18 @@ EDIT_URL = reverse('notes:edit', args=(NOTE_SLUG_FOR_TEST,))
 class TestContent(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.author = User.objects.create(username='IamGroot')
-        cls.author_client = Client()
-        cls.author_client.force_login(cls.author)
+        cls.guest = Client()
+        cls.author_user = User.objects.create(username='IamGroot')
+        cls.author = Client()
+        cls.author.force_login(cls.author_user)
         cls.reader = User.objects.create(username='IceFrog')
-        cls.reader_client = Client()
-        cls.reader_client.force_login(cls.reader)
+        cls.another = Client()
+        cls.another.force_login(cls.reader)
         Note.objects.bulk_create(
             Note(
                 title=f'Note{index}',
                 text='Pro100 Text',
-                author=cls.author,
+                author=cls.author_user,
                 slug=f'note{index}'
             )
             for index in range(2)
@@ -31,32 +32,30 @@ class TestContent(TestCase):
         cls.note = Note.objects.create(
             title='Test title',
             text='Test text',
-            author=cls.author,
+            author=cls.author_user,
             slug=NOTE_SLUG_FOR_TEST,
         )
 
     def test_notes_count(self):
         self.assertEqual(
-            len(self.author_client.get(LIST_URL).context['object_list']),
-            Note.objects.count()
+            len(self.author.get(LIST_URL).context['object_list']),
+            Note.objects.filter(author=self.author_user).count()
         )
 
     def test_notes_list_for_different_users(self):
         clients_availability = (
-            (self.author_client, True),
-            (self.reader_client, False)
+            (self.author, True),
+            (self.another, False)
         )
-        for parametrized_client, availability in clients_availability:
-            with self.subTest(client=parametrized_client):
+        for client, availability in clients_availability:
+            with self.subTest(client=client):
                 self.assertEqual(
-                    (self.note in parametrized_client.get(
-                        LIST_URL
-                    ).context['object_list']),
+                    (self.note in client.get(LIST_URL).context['object_list']),
                     availability
                 )
 
     def test_pages_contains_form(self):
         for url in (ADD_URL, EDIT_URL):
-            context = self.author_client.get(url).context
+            context = self.author.get(url).context
             self.assertIn('form', context)
             self.assertIsInstance(context['form'], NoteForm)

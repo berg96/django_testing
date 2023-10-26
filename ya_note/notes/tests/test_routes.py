@@ -21,52 +21,53 @@ SIGNUP_URL = reverse('users:signup')
 class TestRoutes(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.author = User.objects.create(username='IceFrog')
-        cls.author_client = Client()
-        cls.author_client.force_login(cls.author)
+        cls.guest = Client()
+        cls.author_user = User.objects.create(username='IceFrog')
+        cls.author = Client()
+        cls.author.force_login(cls.author_user)
         cls.reader = User.objects.create(username='IamGroot')
-        cls.reader_client = Client()
-        cls.reader_client.force_login(cls.reader)
+        cls.another = Client()
+        cls.another.force_login(cls.reader)
         cls.note = Note.objects.create(
             title='Test title',
             text='Test text',
-            author=cls.author,
+            author=cls.author_user,
             slug=NOTE_SLUG_FOR_TEST,
         )
 
     def test_pages_availability(self):
-        URL_PARAM_CLIENT_EXPECTED_STATUS = [
-            [HOME_URL, self.client, HTTPStatus.OK],
-            [LOGIN_URL, self.client, HTTPStatus.OK],
-            [LOGOUT_URL, self.client, HTTPStatus.OK],
-            [SIGNUP_URL, self.client, HTTPStatus.OK],
-            [LIST_URL, self.author_client, HTTPStatus.OK],
-            [ADD_URL, self.author_client, HTTPStatus.OK],
-            [SUCCESS_URL, self.author_client, HTTPStatus.OK],
-            [DETAIL_URL, self.author_client, HTTPStatus.OK],
-            [EDIT_URL, self.author_client, HTTPStatus.OK],
-            [DELETE_URL, self.author_client, HTTPStatus.OK],
-            [DETAIL_URL, self.reader_client, HTTPStatus.NOT_FOUND],
-            [EDIT_URL, self.reader_client, HTTPStatus.NOT_FOUND],
-            [DELETE_URL, self.reader_client, HTTPStatus.NOT_FOUND],
+        URL_CLIENT_EXPECTED_STATUS = [
+            [HOME_URL, self.guest, HTTPStatus.OK],
+            [LOGIN_URL, self.guest, HTTPStatus.OK],
+            [LOGOUT_URL, self.guest, HTTPStatus.OK],
+            [SIGNUP_URL, self.guest, HTTPStatus.OK],
+            [LIST_URL, self.author, HTTPStatus.OK],
+            [ADD_URL, self.author, HTTPStatus.OK],
+            [SUCCESS_URL, self.author, HTTPStatus.OK],
+            [DETAIL_URL, self.author, HTTPStatus.OK],
+            [EDIT_URL, self.author, HTTPStatus.OK],
+            [DELETE_URL, self.author, HTTPStatus.OK],
+            [DETAIL_URL, self.another, HTTPStatus.NOT_FOUND],
+            [EDIT_URL, self.another, HTTPStatus.NOT_FOUND],
+            [DELETE_URL, self.another, HTTPStatus.NOT_FOUND],
         ]
         for (
-            url, parametrized_client, expected_status
-        ) in URL_PARAM_CLIENT_EXPECTED_STATUS:
-            with self.subTest(name=url):
+            url, client, expected_status
+        ) in URL_CLIENT_EXPECTED_STATUS:
+            with self.subTest(url=url, client=client, status=expected_status):
                 self.assertEqual(
-                    parametrized_client.get(url).status_code,
+                    client.get(url).status_code,
                     expected_status
                 )
 
     def test_redirect_for_anonymous_client(self):
         for url, expected_redirect in (
-                (ADD_URL, f'{LOGIN_URL}?next={ADD_URL}'),
-                (LIST_URL, f'{LOGIN_URL}?next={LIST_URL}'),
-                (SUCCESS_URL, f'{LOGIN_URL}?next={SUCCESS_URL}'),
-                (DETAIL_URL, f'{LOGIN_URL}?next={DETAIL_URL}'),
-                (EDIT_URL, f'{LOGIN_URL}?next={EDIT_URL}'),
-                (DELETE_URL, f'{LOGIN_URL}?next={DELETE_URL}'),
+            (ADD_URL, f'{LOGIN_URL}?next={ADD_URL}'),
+            (LIST_URL, f'{LOGIN_URL}?next={LIST_URL}'),
+            (SUCCESS_URL, f'{LOGIN_URL}?next={SUCCESS_URL}'),
+            (DETAIL_URL, f'{LOGIN_URL}?next={DETAIL_URL}'),
+            (EDIT_URL, f'{LOGIN_URL}?next={EDIT_URL}'),
+            (DELETE_URL, f'{LOGIN_URL}?next={DELETE_URL}'),
         ):
             with self.subTest(name=url):
-                self.assertRedirects(self.client.get(url), expected_redirect)
+                self.assertRedirects(self.guest.get(url), expected_redirect)
