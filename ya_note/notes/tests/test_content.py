@@ -39,7 +39,7 @@ class TestContent(TestCase):
     def test_notes_count(self):
         self.assertEqual(
             len(self.author.get(LIST_URL).context['object_list']),
-            len(self.author_user.note_set.all())
+            self.author_user.note_set.count()
         )
 
     def test_notes_list_for_different_users(self):

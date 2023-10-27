@@ -56,10 +56,10 @@ def test_user_cant_use_bad_words(
 def test_author_can_delete_comment(
     delete_url, author_client, detail_url, comment
 ):
-    comments_before_del = set(Comment.objects.all())
+    count_comments_before_del = Comment.objects.count()
     assertRedirects(author_client.delete(delete_url), detail_url + '#comments')
-    assert (len(comments_before_del) - 1) == Comment.objects.count()
-    assert comment == (comments_before_del - set(Comment.objects.all())).pop()
+    assert (count_comments_before_del - 1) == Comment.objects.count()
+    assert comment not in Comment.objects.all()
 
 
 def test_user_cant_delete_comment_of_another_user(
