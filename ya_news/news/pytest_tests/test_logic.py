@@ -59,7 +59,7 @@ def test_author_can_delete_comment(
     count_comments_before_del = Comment.objects.count()
     assertRedirects(author_client.delete(delete_url), detail_url + '#comments')
     assert (count_comments_before_del - 1) == Comment.objects.count()
-    assert comment not in Comment.objects.all()
+    assert Comment.objects.filter(pk=comment.pk).exists() is False
 
 
 def test_user_cant_delete_comment_of_another_user(
